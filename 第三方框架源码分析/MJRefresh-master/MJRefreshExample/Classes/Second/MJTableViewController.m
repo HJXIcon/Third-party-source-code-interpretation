@@ -43,7 +43,7 @@ static const CGFloat MJDuration = 2.0;
     self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [weakSelf loadNewData];
     }];
-    
+    self.tableView.mj_header.backgroundColor = [UIColor colorWithRed:((float)arc4random_uniform(256) / 255.0) green:((float)arc4random_uniform(256) / 255.0) blue:((float)arc4random_uniform(256) / 255.0) alpha:1.0];
     // 马上进入刷新状态
     [self.tableView.mj_header beginRefreshing];
 }

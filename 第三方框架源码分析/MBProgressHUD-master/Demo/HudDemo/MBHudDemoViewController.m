@@ -336,7 +336,7 @@
             // to the HUD to myProgressTask as a method parameter.
             [MBProgressHUD HUDForView:self.navigationController.view].progress = progress;
         });
-        usleep(50000);
+        usleep(50000);//函数的功能是把调用该函数的线程挂起一段时间，单位微秒 百万分之一秒
     }
 }
 
