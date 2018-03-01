@@ -75,6 +75,7 @@
             
             // 当底部刷新控件完全出现时，才刷新
             [self beginRefreshing];
+
         }
         
     }

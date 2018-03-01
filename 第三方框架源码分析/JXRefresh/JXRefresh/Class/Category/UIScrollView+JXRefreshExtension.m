@@ -11,6 +11,19 @@
 #import "JXRefreshHeader.h"
 #import <objc/runtime.h>
 
+@implementation NSObject (JXRefreshExtension)
+
++ (void)exchangeInstanceMethod1:(SEL)method1 method2:(SEL)method2{
+    method_exchangeImplementations(class_getInstanceMethod(self, method1), class_getInstanceMethod(self, method2));
+}
+
++ (void)exchangeClassMethod1:(SEL)method1 method2:(SEL)method2{
+    
+    method_exchangeImplementations(class_getClassMethod(self, method1), class_getClassMethod(self, method2));
+}
+
+@end
+
 @implementation UIScrollView (JXRefreshExtension)
 
 - (void)setJx_header:(JXRefreshHeader *)jx_header{
@@ -46,5 +59,69 @@
 
 - (JXRefreshFooter *)jx_footer{
     return objc_getAssociatedObject(self, _cmd);
+}
+
+#pragma mark - *** dataCount
+- (NSInteger)jx_totalDataCount{
+    NSInteger totalCount = 0;
+    if ([self isKindOfClass:[UITableView class]]) {
+        UITableView *tableView = (UITableView *)self;
+        
+        for (NSInteger section = 0; section<tableView.numberOfSections; section++) {
+            totalCount += [tableView numberOfRowsInSection:section];
+        }
+    } else if ([self isKindOfClass:[UICollectionView class]]) {
+        UICollectionView *collectionView = (UICollectionView *)self;
+        
+        for (NSInteger section = 0; section<collectionView.numberOfSections; section++) {
+            totalCount += [collectionView numberOfItemsInSection:section];
+        }
+    }
+    return totalCount;
+}
+
+- (void)setJx_reloadDataBlock:(void (^)(NSInteger))jx_reloadDataBlock{
+    
+    if (self.jx_reloadDataBlock != jx_reloadDataBlock) {
+        [self willChangeValueForKey:@"jx_reloadDataBlock"];
+        objc_setAssociatedObject(self, @selector(jx_reloadDataBlock), jx_reloadDataBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+        [self didChangeValueForKey:@"jx_reloadDataBlock"];
+    }
+}
+
+
+- (void (^)(NSInteger))jx_reloadDataBlock{
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)executeReloadDataBlock{
+    !self.jx_reloadDataBlock ? : self.jx_reloadDataBlock(self.jx_totalDataCount);
+}
+
+
+@end
+
+
+@implementation UITableView (JXRefreshExtension)
+
++ (void)load{
+    [self exchangeInstanceMethod1:@selector(reloadData) method2:@selector(jx_reloadData)];
+}
+
+- (void)jx_reloadData{
+    [self jx_reloadData];
+    [self executeReloadDataBlock];
+}
+@end
+
+
+@implementation UICollectionView (JXRefreshExtension)
++ (void)load{
+    [self exchangeInstanceMethod1:@selector(reloadData) method2:@selector(jx_reloadData)];
+}
+
+- (void)jx_reloadData{
+    [self jx_reloadData];
+    [self executeReloadDataBlock];
 }
 @end

@@ -46,16 +46,9 @@
     [super placeSubviews];
     
     if (self.loadingView.constraints.count) return;
-    
-    [self addLoadingViewConstraint];
-    return;
     // 圈圈
-    CGFloat loadingCenterX = self.jx_width * 0.5;
-    if (!self.isRefreshingTitleHidden) {
-        loadingCenterX -= self.stateLabel.jx_textWith * 0.5 + self.labelLeftInset;
-    }
-    CGFloat loadingCenterY = self.jx_height * 0.5;
-    self.loadingView.center = CGPointMake(loadingCenterX, loadingCenterY);
+    [self addLoadingViewConstraint];
+    
 }
 
 - (void)setState:(JXRefreshState)state

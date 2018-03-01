@@ -17,4 +17,9 @@
 /** 上拉刷新控件 */
 @property (strong, nonatomic) JXRefreshFooter *jx_footer;
 
+
+#pragma mark - *** dataCount
+- (NSInteger)jx_totalDataCount;
+@property (copy, nonatomic) void (^jx_reloadDataBlock)(NSInteger totalDataCount);
+
 @end
