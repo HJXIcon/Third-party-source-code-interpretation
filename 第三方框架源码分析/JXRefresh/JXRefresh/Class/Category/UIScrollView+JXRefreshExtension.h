@@ -7,11 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "JXRefreshHeader.h"
 
+
+@class JXRefreshHeader,JXRefreshFooter;
 @interface UIScrollView (JXRefreshExtension)
 
 /** 下拉刷新控件 */
 @property (strong, nonatomic) JXRefreshHeader *jx_header;
+/** 上拉刷新控件 */
+@property (strong, nonatomic) JXRefreshFooter *jx_footer;
 
 @end

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01152B562047940800C63AC1 /* JXRefreshAutoStateFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01152B552047940800C63AC1 /* JXRefreshAutoStateFooter.m */; };
+		01152B592047970800C63AC1 /* JXRefreshAutoFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01152B582047970800C63AC1 /* JXRefreshAutoFooter.m */; };
+		01152B5C204799E600C63AC1 /* JXRefreshAutoNormalFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 01152B5B204799E600C63AC1 /* JXRefreshAutoNormalFooter.m */; };
 		018A02242046414F00BA6F44 /* JXRefreshConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A02232046414F00BA6F44 /* JXRefreshConst.m */; };
 		018A0227204642B800BA6F44 /* UIScrollView+JXExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A0226204642B800BA6F44 /* UIScrollView+JXExtension.m */; };
 		018A022D2046449200BA6F44 /* UIView+JXExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A022C2046449200BA6F44 /* UIView+JXExtension.m */; };
@@ -17,6 +20,7 @@
 		018A023B2046A8EC00BA6F44 /* NSBundle+JXRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A023A2046A8EC00BA6F44 /* NSBundle+JXRefresh.m */; };
 		018A02412046B92200BA6F44 /* JXRefreshGifHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A02402046B92200BA6F44 /* JXRefreshGifHeader.m */; };
 		018A02442046C3A200BA6F44 /* JXRefreshChiBaoZiHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A02432046C3A200BA6F44 /* JXRefreshChiBaoZiHeader.m */; };
+		018A02472046C92900BA6F44 /* JXRefreshFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 018A02462046C92900BA6F44 /* JXRefreshFooter.m */; };
 		01BE52C4204569120066E180 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BE52C3204569120066E180 /* AppDelegate.m */; };
 		01BE52C7204569120066E180 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BE52C6204569120066E180 /* ViewController.m */; };
 		01BE52CA204569120066E180 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 01BE52C8204569120066E180 /* Main.storyboard */; };
@@ -28,6 +32,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		01152B542047940800C63AC1 /* JXRefreshAutoStateFooter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshAutoStateFooter.h; sourceTree = "<group>"; };
+		01152B552047940800C63AC1 /* JXRefreshAutoStateFooter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshAutoStateFooter.m; sourceTree = "<group>"; };
+		01152B572047970800C63AC1 /* JXRefreshAutoFooter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshAutoFooter.h; sourceTree = "<group>"; };
+		01152B582047970800C63AC1 /* JXRefreshAutoFooter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshAutoFooter.m; sourceTree = "<group>"; };
+		01152B5A204799E600C63AC1 /* JXRefreshAutoNormalFooter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshAutoNormalFooter.h; sourceTree = "<group>"; };
+		01152B5B204799E600C63AC1 /* JXRefreshAutoNormalFooter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshAutoNormalFooter.m; sourceTree = "<group>"; };
 		018A02222046414F00BA6F44 /* JXRefreshConst.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshConst.h; sourceTree = "<group>"; };
 		018A02232046414F00BA6F44 /* JXRefreshConst.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshConst.m; sourceTree = "<group>"; };
 		018A0225204642B800BA6F44 /* UIScrollView+JXExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+JXExtension.h"; sourceTree = "<group>"; };
@@ -47,6 +57,8 @@
 		018A02402046B92200BA6F44 /* JXRefreshGifHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshGifHeader.m; sourceTree = "<group>"; };
 		018A02422046C3A200BA6F44 /* JXRefreshChiBaoZiHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshChiBaoZiHeader.h; sourceTree = "<group>"; };
 		018A02432046C3A200BA6F44 /* JXRefreshChiBaoZiHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshChiBaoZiHeader.m; sourceTree = "<group>"; };
+		018A02452046C92900BA6F44 /* JXRefreshFooter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXRefreshFooter.h; sourceTree = "<group>"; };
+		018A02462046C92900BA6F44 /* JXRefreshFooter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXRefreshFooter.m; sourceTree = "<group>"; };
 		01BE52BF204569120066E180 /* JXRefresh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JXRefresh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		01BE52C2204569120066E180 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		01BE52C3204569120066E180 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -77,6 +89,14 @@
 		018A023C2046B8A100BA6F44 /* Footer */ = {
 			isa = PBXGroup;
 			children = (
+				018A02452046C92900BA6F44 /* JXRefreshFooter.h */,
+				018A02462046C92900BA6F44 /* JXRefreshFooter.m */,
+				01152B572047970800C63AC1 /* JXRefreshAutoFooter.h */,
+				01152B582047970800C63AC1 /* JXRefreshAutoFooter.m */,
+				01152B542047940800C63AC1 /* JXRefreshAutoStateFooter.h */,
+				01152B552047940800C63AC1 /* JXRefreshAutoStateFooter.m */,
+				01152B5A204799E600C63AC1 /* JXRefreshAutoNormalFooter.h */,
+				01152B5B204799E600C63AC1 /* JXRefreshAutoNormalFooter.m */,
 			);
 			path = Footer;
 			sourceTree = "<group>";
@@ -235,7 +255,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				018A023020465A1E00BA6F44 /* JXRefreshComponent.m in Sources */,
+				01152B592047970800C63AC1 /* JXRefreshAutoFooter.m in Sources */,
 				01BE52DE204569BC0066E180 /* UIScrollView+JXRefreshExtension.m in Sources */,
+				01152B5C204799E600C63AC1 /* JXRefreshAutoNormalFooter.m in Sources */,
+				01152B562047940800C63AC1 /* JXRefreshAutoStateFooter.m in Sources */,
 				01BE52C7204569120066E180 /* ViewController.m in Sources */,
 				018A022D2046449200BA6F44 /* UIView+JXExtension.m in Sources */,
 				01BE52D2204569120066E180 /* main.m in Sources */,
@@ -247,6 +270,7 @@
 				018A02412046B92200BA6F44 /* JXRefreshGifHeader.m in Sources */,
 				018A023620469F4A00BA6F44 /* JXRefreshStateHeader.m in Sources */,
 				018A023B2046A8EC00BA6F44 /* NSBundle+JXRefresh.m in Sources */,
+				018A02472046C92900BA6F44 /* JXRefreshFooter.m in Sources */,
 				01BE52C4204569120066E180 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

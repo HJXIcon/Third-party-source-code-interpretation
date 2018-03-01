@@ -7,6 +7,8 @@
 //
 
 #import "UIScrollView+JXRefreshExtension.h"
+#import "JXRefreshFooter.h"
+#import "JXRefreshHeader.h"
 #import <objc/runtime.h>
 
 @implementation UIScrollView (JXRefreshExtension)
@@ -29,4 +31,20 @@
     return objc_getAssociatedObject(self, _cmd);
 }
 
+- (void)setJx_footer:(JXRefreshFooter *)jx_footer{
+    if (jx_footer != self.jx_footer) {
+        // 删除旧的，添加新的
+        [self.jx_footer removeFromSuperview];
+        [self insertSubview:jx_footer atIndex:0];
+        // 存储新的
+        [self willChangeValueForKey:@"jx_footer"]; // KVO
+        objc_setAssociatedObject(self, @selector(jx_footer), jx_footer, OBJC_ASSOCIATION_ASSIGN);
+        [self didChangeValueForKey:@"jx_footer"]; // KVO
+    }
+}
+
+
+- (JXRefreshFooter *)jx_footer{
+    return objc_getAssociatedObject(self, _cmd);
+}
 @end
