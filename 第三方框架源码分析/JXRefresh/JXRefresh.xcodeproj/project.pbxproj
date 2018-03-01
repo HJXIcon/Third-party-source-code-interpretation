@@ -135,11 +135,19 @@
 			path = Back;
 			sourceTree = "<group>";
 		};
-		018A023C2046B8A100BA6F44 /* Footer */ = {
+		01152B8220480D3500C63AC1 /* Base */ = {
 			isa = PBXGroup;
 			children = (
 				018A02452046C92900BA6F44 /* JXRefreshFooter.h */,
 				018A02462046C92900BA6F44 /* JXRefreshFooter.m */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		018A023C2046B8A100BA6F44 /* Footer */ = {
+			isa = PBXGroup;
+			children = (
+				01152B8220480D3500C63AC1 /* Base */,
 				01152B712047FCF700C63AC1 /* Aotu */,
 				01152B722047FD1400C63AC1 /* Back */,
 			);
