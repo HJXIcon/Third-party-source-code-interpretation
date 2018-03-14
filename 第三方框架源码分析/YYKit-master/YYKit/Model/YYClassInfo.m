@@ -11,7 +11,7 @@
 
 #import "YYClassInfo.h"
 #import <objc/runtime.h>
-
+// 通过指定类型编码字符串，返回类型编码字符串中Foundation Framework 编码字符和method encodings编码字符
 YYEncodingType YYEncodingGetType(const char *typeEncoding) {
     char *type = (char *)typeEncoding;
     if (!type) return YYEncodingTypeUnknown;
@@ -328,26 +328,39 @@ YYEncodingType YYEncodingGetType(const char *typeEncoding) {
 
 + (instancetype)classInfoWithClass:(Class)cls {
     if (!cls) return nil;
-    static CFMutableDictionaryRef classCache;
-    static CFMutableDictionaryRef metaCache;
+    // 单例缓存 classCache 与 metaCache，对应缓存类和元类
+    static CFMutableDictionaryRef classCache;// 类缓存器
+    static CFMutableDictionaryRef metaCache;// 元组缓存器
     static dispatch_once_t onceToken;
+    // 同步信号量
     static dispatch_semaphore_t lock;
-    dispatch_once(&onceToken, ^{
+    dispatch_once(&onceToken, ^{// 保证该块代码在线程安全（内部有一个同步锁）只执行一次
         classCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
         metaCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+         // 这里把 dispatch_semaphore 当做锁来使用（当信号量只有 1 时）
         lock = dispatch_semaphore_create(1);
     });
+    // 初始化之前，首先会根据当前 YYClassInfo 是否为元类去对应的单例缓存中查找
+    // 这里使用了上面的 dispatch_semaphore 加锁，保证单例缓存的线程安全
     dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+    
     YYClassInfo *info = CFDictionaryGetValue(class_isMetaClass(cls) ? metaCache : classCache, (__bridge const void *)(cls));
+    // 如果找到了，且找到的信息需要更新的话则执行更新操作
     if (info && info->_needUpdate) {
         [info _update];
     }
+    
     dispatch_semaphore_signal(lock);
+    
+    // 如果没找到，才会去老实初始化
     if (!info) {
         info = [[YYClassInfo alloc] initWithClass:cls];
         if (info) {
+             // 线程安全
             dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
+            // 根据初始化信息选择向对应的类/元类缓存注入信息，key = cls，value = info
             CFDictionarySetValue(info.isMeta ? metaCache : classCache, (__bridge const void *)(cls), (__bridge const void *)(info));
+            // 释放锁
             dispatch_semaphore_signal(lock);
         }
     }

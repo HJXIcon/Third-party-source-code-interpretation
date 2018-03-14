@@ -8,6 +8,15 @@
 //  This source code is licensed under the MIT-style license found in the
 //  LICENSE file in the root directory of this source tree.
 //
+/**!
+ 
+ 类型编码解析
+ 数据结构定义
+ 递归模型转换
+ 接口相关代码
+ 
+ */
+
 
 #import <Foundation/Foundation.h>
 
