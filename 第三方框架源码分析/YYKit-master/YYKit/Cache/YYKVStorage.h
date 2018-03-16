@@ -20,10 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface YYKVStorageItem : NSObject
 @property (nonatomic, strong) NSString *key;                ///< key
 @property (nonatomic, strong) NSData *value;                ///< value
+// 缓存文件名
 @property (nullable, nonatomic, strong) NSString *filename; ///< filename (nil if inline)
+// 缓存大小
 @property (nonatomic) int size;                             ///< value's size in bytes
+// 修改时间
 @property (nonatomic) int modTime;                          ///< modification unix timestamp
+// 最后使用时间
 @property (nonatomic) int accessTime;                       ///< last access unix timestamp
+// 拓展数据
 @property (nullable, nonatomic, strong) NSData *extendedData; ///< extended data (nil if no extended data)
 @end
 
@@ -45,12 +50,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NS_ENUM(NSUInteger, YYKVStorageType) {
     
+    // 文件缓存(filename != null)
     /// The `value` is stored as a file in file system.
     YYKVStorageTypeFile = 0,
     
+    // 数据库缓存
     /// The `value` is stored in sqlite with blob type.
     YYKVStorageTypeSQLite = 1,
     
+    // 如果filename != null，则value用文件缓存，缓存的其他参数用数据库缓存；如果filename == null,则用数据库缓存
     /// The `value` is stored in file system or sqlite based on your choice.
     YYKVStorageTypeMixed = 2,
 };
@@ -73,6 +81,8 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  need to process large amounts of data in multi-thread, you should split the data
  to multiple KVStorage instance (sharding).
  */
+
+// 缓存操作实现
 @interface YYKVStorage : NSObject
 
 #pragma mark - Attribute
@@ -80,13 +90,13 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
 /// @name Attribute
 ///=============================================================================
 
-@property (nonatomic, readonly) NSString *path;        ///< The path of this storage.
-@property (nonatomic, readonly) YYKVStorageType type;  ///< The type of this storage.
-@property (nonatomic) BOOL errorLogsEnabled;           ///< Set `YES` to enable error logs for debug.
+@property (nonatomic, readonly) NSString *path;        ///< The path of this storage.// 缓存路径
+@property (nonatomic, readonly) YYKVStorageType type;  ///< The type of this storage.// 缓存方式
+@property (nonatomic) BOOL errorLogsEnabled;           ///< Set `YES` to enable error logs for debug.// 是否要打开错误日志
 
 #pragma mark - Initializer
 ///=============================================================================
-/// @name Initializer
+/// @name Initializer 这两个方法不能使用，因为实例化对象时要有初始化path、type
 ///=============================================================================
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 + (instancetype)new UNAVAILABLE_ATTRIBUTE;
@@ -188,6 +198,9 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  @param size  The maximum size in bytes.
  @return Whether succeed.
  */
+/**
+ *  删除所有内存开销大于size的缓存
+ */
 - (BOOL)removeItemsLargerThanSize:(int)size;
 
 /**
@@ -195,6 +208,9 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  
  @param time  The specified unix timestamp.
  @return Whether succeed.
+ */
+/**
+ *  删除所有时间比time小的缓存
  */
 - (BOOL)removeItemsEarlierThanTime:(int)time;
 
@@ -205,6 +221,9 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  @param maxSize The specified size in bytes.
  @return Whether succeed.
  */
+/**
+ *  减小缓存占的容量开销，使总缓存的容量开销值不大于maxSize(删除原则：LRU 最久未使用的缓存将先删除)
+ */
 - (BOOL)removeItemsToFitSize:(int)maxSize;
 
 /**
@@ -213,6 +232,9 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  
  @param maxCount The specified item count.
  @return Whether succeed.
+ */
+/**
+ *  减小总缓存数量，使总缓存数量不大于maxCount(删除原则：LRU 最久未使用的缓存将先删除)
  */
 - (BOOL)removeItemsToFitCount:(int)maxCount;
 
@@ -305,6 +327,9 @@ typedef NS_ENUM(NSUInteger, YYKVStorageType) {
  @param key  A specified key.
  
  @return `YES` if there's an item exists for the key, `NO` if not exists or an error occurs.
+ */
+/**
+ *  判断当前key是否有对应的缓存
  */
 - (BOOL)itemExistsForKey:(NSString *)key;
 

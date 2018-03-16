@@ -35,6 +35,7 @@ typedef NS_ENUM (NSUInteger, YYEncodingNSType) {
     YYEncodingTypeNSMutableSet,
 };
 
+// 函数将 NS 类型转为 YYEncodingNSType
 /// Get the Foundation class type from property info.
 static force_inline YYEncodingNSType YYClassGetNSType(Class cls) {
     if (!cls) return YYEncodingTypeNSUnknown;
@@ -56,6 +57,7 @@ static force_inline YYEncodingNSType YYClassGetNSType(Class cls) {
     return YYEncodingTypeNSUnknown;
 }
 
+// 判断类型是否可以直接转为 C 语言数值类型的函数。
 /// Whether the type is c number.
 static force_inline BOOL YYEncodingTypeIsCNumber(YYEncodingType type) {
     switch (type & YYEncodingTypeMask) {
@@ -1292,6 +1294,7 @@ static void ModelSetWithPropertyMetaArrayFunction(const void *_propertyMeta, voi
  @param model Model, can be nil.
  @return JSON object, nil if an error occurs.
  */
+//递归模型转换相关的函数
 static id ModelToJSONObjectRecursive(NSObject *model) {
     if (!model || model == (id)kCFNull) return model;
     if ([model isKindOfClass:[NSString class]]) return model;

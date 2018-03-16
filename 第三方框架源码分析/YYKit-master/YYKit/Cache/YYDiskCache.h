@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
  
  You may compile the latest version of sqlite and ignore the libsqlite3.dylib in
  iOS system to get 2x~4x speed up.
+ 
+
+ 
+ sqlite: 对于小数据（例如 NSNumber）的存取效率明显高于 file。
+ file: 对于较大数据（例如高质量图片）的存取效率优于 sqlite。
+ 所以 YYDiskCache 使用两者配合，灵活的存储以提高性能。
  */
 @interface YYDiskCache : NSObject
 
@@ -37,9 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The name of the cache. Default is nil. */
 @property (nullable, copy) NSString *name;
+// 缓存名称，默认为 nil
 
 /** The path of the cache (read-only). */
 @property (readonly) NSString *path;
+// 缓存路径
 
 /**
  If the object's data size (in bytes) is larger than this value, then object will
@@ -49,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
  objects will be stored in sqlite. 
  
  The default value is 20480 (20KB).
+ 
+ 即是说，如果缓存数据的长度大于这个值，就使用文件存储；如果小于这个值，就是用sqlite存储。来看一下这个属性是如何使用的：
  */
 @property (readonly) NSUInteger inlineThreshold;
 
@@ -58,6 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
  conform to the `NSCoding` protocol.
  
  The default value is nil.
+ 
+ // 用来替换 NSKeyedArchiver，你可以使用该代码块以支持没有 conform `NSCoding` 协议的对象
  */
 @property (nullable, copy) NSData *(^customArchiveBlock)(id object);
 
@@ -67,6 +79,9 @@ NS_ASSUME_NONNULL_BEGIN
  conform to the `NSCoding` protocol.
  
  The default value is nil.
+ 
+ // 用来替换 NSKeyedUnarchiver，你可以使用该代码块以支持没有 conform `NSCoding` 协议的对象
+
  */
 @property (nullable, copy) id (^customUnarchiveBlock)(NSData *data);
 
@@ -76,6 +91,9 @@ NS_ASSUME_NONNULL_BEGIN
  default file name.
  
  The default value is nil.
+ 
+ // 当一个对象将以 file 的形式保存时，该代码块用来生成指定文件名。如果为 nil，则默认使用 md5(key) 作为文件名
+
  */
 @property (nullable, copy) NSString *(^customFileNameBlock)(NSString *key);
 
@@ -92,6 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion The default value is NSUIntegerMax, which means no limit.
  This is not a strict limit — if the cache goes over the limit, some objects in the
  cache could be evicted later in background queue.
+ 
+ // 缓存对象数量限制，默认无限制，超过限制则会在后台逐出一些对象以满足限制
+
  */
 @property NSUInteger countLimit;
 
@@ -101,6 +122,8 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion The default value is NSUIntegerMax, which means no limit.
  This is not a strict limit — if the cache goes over the limit, some objects in the
  cache could be evicted later in background queue.
+ 
+ // 缓存开销数量限制，默认无限制，超过限制则会在后台逐出一些对象以满足限制
  */
 @property NSUInteger costLimit;
 
@@ -110,6 +133,8 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion The default value is DBL_MAX, which means no limit.
  This is not a strict limit — if an object goes over the limit, the objects could
  be evicted later in background queue.
+ 
+ // 缓存时间限制，默认无限制，超过限制则会在后台逐出一些对象以满足限制
  */
 @property NSTimeInterval ageLimit;
 
@@ -120,6 +145,8 @@ NS_ASSUME_NONNULL_BEGIN
  If the free disk space is lower than this value, the cache will remove objects
  to free some disk space. This is not a strict limit—if the free disk space goes
  over the limit, the objects could be evicted later in background queue.
+ 
+ // 缓存应该保留的最小可用磁盘空间（以字节为单位），默认无限制，超过限制则会在后台逐出一些对象以满足限制
  */
 @property NSUInteger freeDiskSpaceLimit;
 
@@ -128,11 +155,15 @@ NS_ASSUME_NONNULL_BEGIN
  
  @discussion The cache holds an internal timer to check whether the cache reaches
  its limits, and if the limit is reached, it begins to evict objects.
+ 
+ // 缓存自动清理时间间隔，默认 60s
  */
 @property NSTimeInterval autoTrimInterval;
 
 /**
  Set `YES` to enable error logs for debug.
+ 
+ // 是否开启错误日志
  */
 @property BOOL errorLogsEnabled;
 

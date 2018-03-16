@@ -169,21 +169,35 @@ static NSString *const kTrashDirectoryName = @"trash";
     
     return result == SQLITE_OK;
 }
-
+// 将sql编译成stmt
 - (sqlite3_stmt *)_dbPrepareStmt:(NSString *)sql {
     if (![self _dbCheck] || sql.length == 0 || !_dbStmtCache) return NULL;
+    // 从_dbStmtCache字典里取之前编译过sql的stmt(优化)
     sqlite3_stmt *stmt = (sqlite3_stmt *)CFDictionaryGetValue(_dbStmtCache, (__bridge const void *)(sql));
     if (!stmt) {
+        // 如果没有缓存再从新生成一个 sqlite3_stmt
+        // 将sql编译成stmt
         int result = sqlite3_prepare_v2(_db, sql.UTF8String, -1, &stmt, NULL);
         if (result != SQLITE_OK) {
+            
+            //** 未完成执行数据库 **
+            
+            // 输出错误logs
             if (_errorLogsEnabled) NSLog(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_db));
             return NULL;
         }
+        // 将新的stmt缓存到字典
         CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);
     } else {
+        // 重置stmt状态
         sqlite3_reset(stmt);
     }
     return stmt;
+    
+    /**！
+     这样就可以省去一些重复生成 sqlite3_stmt 的开销。
+     sqlite3_stmt: 该对象的实例表示已经编译成二进制形式并准备执行的单个 SQL 语句。
+     */
 }
 
 - (NSString *)_dbJoinedKeys:(NSArray *)keys {
@@ -204,26 +218,38 @@ static NSString *const kTrashDirectoryName = @"trash";
     }
 }
 
+// 写入数据库
 - (BOOL)_dbSaveWithKey:(NSString *)key value:(NSData *)value fileName:(NSString *)fileName extendedData:(NSData *)extendedData {
+    // 执行sql语句
     NSString *sql = @"insert or replace into manifest (key, filename, size, inline_data, modification_time, last_access_time, extended_data) values (?1, ?2, ?3, ?4, ?5, ?6, ?7);";
+    // 所有sql执行前，都必须能run
     sqlite3_stmt *stmt = [self _dbPrepareStmt:sql];
     if (!stmt) return NO;
-    
+    // 时间
     int timestamp = (int)time(NULL);
+    // 绑定参数值
+    //第三个参数中需要传递的长度。对于C字符串来说，-1表示传递全部字符串。
     sqlite3_bind_text(stmt, 1, key.UTF8String, -1, NULL);
     sqlite3_bind_text(stmt, 2, fileName.UTF8String, -1, NULL);
     sqlite3_bind_int(stmt, 3, (int)value.length);
     if (fileName.length == 0) {
+        
+         // fileName为null时，缓存value
         sqlite3_bind_blob(stmt, 4, value.bytes, (int)value.length, 0);
     } else {
+        // fileName不为null时，不缓存value
         sqlite3_bind_blob(stmt, 4, NULL, 0, 0);
     }
     sqlite3_bind_int(stmt, 5, timestamp);
     sqlite3_bind_int(stmt, 6, timestamp);
     sqlite3_bind_blob(stmt, 7, extendedData.bytes, (int)extendedData.length, 0);
     
+    // 执行操作
     int result = sqlite3_step(stmt);
     if (result != SQLITE_DONE) {
+        //** 未完成执行数据库 **
+        
+        // 输出错误logs
         if (_errorLogsEnabled) NSLog(@"%s line:%d sqlite insert error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_db));
         return NO;
     }
@@ -421,7 +447,7 @@ static NSString *const kTrashDirectoryName = @"trash";
         return nil;
     }
 }
-
+// 从数据库查找文件名
 - (NSString *)_dbGetFilenameWithKey:(NSString *)key {
     NSString *sql = @"select filename from manifest where key = ?1;";
     sqlite3_stmt *stmt = [self _dbPrepareStmt:sql];
@@ -726,28 +752,48 @@ static NSString *const kTrashDirectoryName = @"trash";
     return [self saveItemWithKey:key value:value filename:nil extendedData:nil];
 }
 
+/*！
+ 1.首先判断传入的key和value是否符合要求，如果不符合要求，则立即返回NO，缓存失败。
+ 2.再判断是否type==YYKVStorageTypeFile并且文件名为空字符串（或nil）：如果是，则立即返回NO，缓存失败。
+ 3.判断filename是否为空字符串：
+    如果不为空：写入文件，并将缓存的key，等信息写入数据库，但是不将key对应的data写入数据库。
+    如果为空：
+ 4.如果缓存类型为YYKVStorageTypeSQLite：将缓存文件删除
+ 5.如果缓存类型不为YYKVStorageTypeSQLite：则将缓存的key和对应的data等其他信息存入数据库。
+ */
+
 - (BOOL)saveItemWithKey:(NSString *)key value:(NSData *)value filename:(NSString *)filename extendedData:(NSData *)extendedData {
     if (key.length == 0 || value.length == 0) return NO;
+    //** `缓存方式为YYKVStorageTypeFile(文件缓存)`并且`未传缓存文件名`则不缓存(忽略) **
     if (_type == YYKVStorageTypeFile && filename.length == 0) {
         return NO;
     }
     
     if (filename.length) {
+        //** 存在文件名则用文件缓存，并把`key`,`filename`,`extendedData`写入数据库 **
+        
+        // 缓存数据写入文件
         if (![self _fileWriteWithName:filename data:value]) {
             return NO;
         }
+         // 把`key`,`filename`,`extendedData`写入数据库,存在filenam,则不把value缓存进数据库
         if (![self _dbSaveWithKey:key value:value fileName:filename extendedData:extendedData]) {
+            // 如果数据库操作失败，删除之前的文件缓存
             [self _fileDeleteWithName:filename];
             return NO;
         }
         return YES;
     } else {
         if (_type != YYKVStorageTypeSQLite) {
+            // ** 缓存方式：非数据库 **
+            // 根据缓存key查找缓存文件名
             NSString *filename = [self _dbGetFilenameWithKey:key];
             if (filename) {
+                // 删除文件缓存
                 [self _fileDeleteWithName:filename];
             }
         }
+        // 把缓存写入数据库
         return [self _dbSaveWithKey:key value:value fileName:nil extendedData:extendedData];
     }
 }

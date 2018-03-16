@@ -161,10 +161,13 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
              inlineThreshold:(NSUInteger)threshold {
     self = [super init];
     if (!self) return nil;
-    
+    // 1.根据path先从缓存里面找YYDiskCache(未找到再去重新创建实例)
     YYDiskCache *globalCache = _YYDiskCacheGetGlobal(path);
     if (globalCache) return globalCache;
     
+    // 2.重新创建实例
+    
+    // 2.1缓存方式
     YYKVStorageType type;
     if (threshold == 0) {
         type = YYKVStorageTypeFile;
@@ -174,9 +177,11 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
         type = YYKVStorageTypeMixed;
     }
     
+    // 2.2实例化YYKVStorage对象(YYKVStorage上面已分析，YYDiskCache的缓存实现都在YKVStorage)
     YYKVStorage *kv = [[YYKVStorage alloc] initWithPath:path type:type];
     if (!kv) return nil;
     
+    // 2.3初始化数据
     _kv = kv;
     _path = path;
     _lock = dispatch_semaphore_create(1);
@@ -188,7 +193,10 @@ static void _YYDiskCacheSetGlobal(YYDiskCache *cache) {
     _freeDiskSpaceLimit = 0;
     _autoTrimInterval = 60;
     
+    // 开启递归清理，会根据 _autoTrimInterval 对 YYDiskCache trim
     [self _trimRecursively];
+    
+    // 2.4缓存self
     _YYDiskCacheSetGlobal(self);
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_appWillBeTerminated) name:UIApplicationWillTerminateNotification object:nil];
