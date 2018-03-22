@@ -119,6 +119,7 @@
     }   else {
         label.text = SDPhotoBrowserSaveImageSuccessText;
     }
+    // 异步执行
     [label performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:1.0];
 }
 
@@ -149,6 +150,7 @@
         [_scrollView addSubview:imageView];
     }
     
+    // 加载图片
     [self setupImageOfImageViewForIndex:self.currentImageIndex];
     
 }
