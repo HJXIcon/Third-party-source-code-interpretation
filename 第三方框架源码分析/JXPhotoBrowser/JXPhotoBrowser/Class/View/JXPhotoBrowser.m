@@ -9,9 +9,14 @@
 #import "JXPhotoBrowser.h"
 #import "JXPhotoBrowserConst.h"
 #import "JXPhotoPreViewController.h"
+#import "UIView+JXExtension.h"
+#import "JXPhotoPreView.h"
+#import "JXProgressView.h"
 
 @interface JXPhotoBrowser()
 @property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, assign) NSInteger imageCount;
+@property (nonatomic, assign) NSInteger currentImageIndex;
 
 @end
 
@@ -25,8 +30,6 @@
 
 - (instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hide)];
-        [self addGestureRecognizer:tap];
     }
     return self;
 }
@@ -34,16 +37,48 @@
 - (void)show{
     self.window = self;
     JXPhotoPreViewController *root = [[JXPhotoPreViewController alloc]init];
-    root.window = self;
-    root.original_pics = self.original_pics;
-    root.thumbnail_pics = self.thumbnail_pics;
+    root.photoBrowser = self;
+    
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowserImageCount:)]) {
+        self.imageCount = [self.dataSource photoBrowserImageCount:self];
+    }
+    
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowserCurrentImageIndex:)]) {
+        self.currentImageIndex = [self.dataSource photoBrowserCurrentImageIndex:self];
+    }
+    
+    NSMutableArray *placeholderImages = [NSMutableArray array];
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowser:placeholderImageForIndex:)]) {
+        for (NSInteger i = 0; i < self.imageCount; i ++) {
+            [placeholderImages addObject:[self.dataSource photoBrowser:self placeholderImageForIndex:i]];
+        }
+    }
+    
+    
+    NSMutableArray *highImages = [NSMutableArray array];
+    
+    if (self.dataSource && [self.dataSource respondsToSelector:@selector(photoBrowser:highQualityImageURLForIndex:)]) {
+        for (NSInteger i = 0; i < self.imageCount; i ++) {
+            [highImages addObject:[self.dataSource photoBrowser:self highQualityImageURLForIndex:i]];
+        }
+    }
+    
+    root.highQualityImages = highImages;
+    root.placeholderImages = placeholderImages;
+    root.currentImageIndex = self.currentImageIndex;
     self.rootViewController = root;
+
+    [[NSNotificationCenter defaultCenter]postNotificationName:JXShowPhotoBrowserOriginFrameNoti object:self.sourceImageContainerView];
     
     // 设置窗口级别(最高级)
     self.windowLevel = UIWindowLevelAlert;
     self.hidden = NO;
     self.backgroundColor = [UIColor blackColor];
 
+}
+
+- (void)reloadData{
+    
 }
 
 - (void)hide{

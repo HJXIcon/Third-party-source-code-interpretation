@@ -20,7 +20,7 @@
 #define JXScreenSize CGSizeMake(JXScreenW, JXScreenH)
 
 // 旋转角为90°或者270°
-#define PYVertical (ABS(acosf(self.window.transform.a) - M_PI_2) < 0.01 || ABS(acosf(self.window.transform.a) - M_PI_2 * 3) < 0.01)
+#define PYVertical (ABS(acosf(self.photoBrowser.transform.a) - M_PI_2) < 0.01 || ABS(acosf(self.photoBrowser.transform.a) - M_PI_2 * 3) < 0.01)
 
 
 // cell的宽
@@ -30,3 +30,7 @@
 
 
 UIKIT_EXTERN const CGFloat PYPreviewPhotoSpacing;   // 预览图片时，图片的间距（默认为30
+
+UIKIT_EXTERN  NSString * const JXAddGestureRecognizersNoti;
+UIKIT_EXTERN  NSString * const JXHidePhotoBrowserNoti;
+UIKIT_EXTERN  NSString * const JXShowPhotoBrowserOriginFrameNoti;

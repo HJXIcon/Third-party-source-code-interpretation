@@ -8,10 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+@class JXPhotoBrowser,JXProgressView;
 @interface JXPhotoPreViewController : UIViewController
 
-@property (nonatomic, weak) UIWindow *window;
-@property (nonatomic, strong) NSArray<NSString *> *thumbnail_pics;
-@property (nonatomic, strong) NSArray<NSString *> *original_pics;
-
+@property (nonatomic, weak) JXPhotoBrowser *photoBrowser;
+@property (nonatomic, strong) NSArray<UIImage *> *placeholderImages;
+@property (nonatomic, strong) NSArray<NSURL *> *highQualityImages;
+@property (nonatomic, assign) NSInteger currentImageIndex;
+@property (nonatomic, strong) JXProgressView *progressView;
 @end

@@ -36,6 +36,7 @@
 		01B876C3206275EF005149FF /* JXPhotoBrowserConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B876C2206275EF005149FF /* JXPhotoBrowserConst.m */; };
 		01B876C620627718005149FF /* UIView+JXExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B876C520627718005149FF /* UIView+JXExtension.m */; };
 		01B876C92062790E005149FF /* JXPhotoPreViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 01B876C82062790E005149FF /* JXPhotoPreViewController.m */; };
+		01ED53ED20650A2800515E06 /* JXProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01ED53EB20650A2800515E06 /* JXProgressView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -96,6 +97,8 @@
 		01B876C520627718005149FF /* UIView+JXExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+JXExtension.m"; sourceTree = "<group>"; };
 		01B876C72062790E005149FF /* JXPhotoPreViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JXPhotoPreViewController.h; sourceTree = "<group>"; };
 		01B876C82062790E005149FF /* JXPhotoPreViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JXPhotoPreViewController.m; sourceTree = "<group>"; };
+		01ED53EB20650A2800515E06 /* JXProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JXProgressView.m; path = ../../../../JXPhotosView/JXPhotosView/Class/View/JXProgressView.m; sourceTree = "<group>"; };
+		01ED53EC20650A2800515E06 /* JXProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JXProgressView.h; path = ../../../../JXPhotosView/JXPhotosView/Class/View/JXProgressView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +133,8 @@
 		016CA9C820634E2900BB5D2C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				01ED53EC20650A2800515E06 /* JXProgressView.h */,
+				01ED53EB20650A2800515E06 /* JXProgressView.m */,
 				01B876BC2062645C005149FF /* JXPhotoBrowser.h */,
 				01B876BD2062645C005149FF /* JXPhotoBrowser.m */,
 				01B876B92062643D005149FF /* JXPhotoPreviewCell.h */,
@@ -328,6 +333,7 @@
 				01B876BE2062645C005149FF /* JXPhotoBrowser.m in Sources */,
 				016CAA3020634F7B00BB5D2C /* MKAnnotationView+WebCache.m in Sources */,
 				01B876A7206263CC005149FF /* ViewController.m in Sources */,
+				01ED53ED20650A2800515E06 /* JXProgressView.m in Sources */,
 				016CAA3820634F7B00BB5D2C /* SDWebImagePrefetcher.m in Sources */,
 				016CAA3720634F7B00BB5D2C /* SDWebImageManager.m in Sources */,
 				01B876C620627718005149FF /* UIView+JXExtension.m in Sources */,

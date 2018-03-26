@@ -8,17 +8,37 @@
 
 #import <UIKit/UIKit.h>
 
+
+@class JXPhotoBrowser;
+@protocol JXPhotoBrowserDataSource<NSObject>
+@required
+
+- (NSInteger)photoBrowserCurrentImageIndex:(JXPhotoBrowser *)browser;
+
+- (NSInteger)photoBrowserImageCount:(JXPhotoBrowser *)browser;
+
+- (UIImage *)photoBrowser:(JXPhotoBrowser *)browser placeholderImageForIndex:(NSInteger)index;
+
+@optional
+- (NSURL *)photoBrowser:(JXPhotoBrowser *)browser highQualityImageURLForIndex:(NSInteger)index;
+@end
+
+
+@protocol JXPhotoBrowserDelegate<NSObject>
+
+
+@end
+
+
 @interface JXPhotoBrowser : UIWindow
 
-@property (nonatomic, strong) NSArray<NSString *> *thumbnail_pics;
-@property (nonatomic, strong) NSArray<NSString *> *original_pics;
-
+@property (nonatomic, weak) id<JXPhotoBrowserDataSource> dataSource;
+@property (nonatomic, weak) UIView *sourceImageContainerView;
 - (instancetype)init UNAVAILABLE_ATTRIBUTE;
 + (instancetype)new UNAVAILABLE_ATTRIBUTE;
-- (instancetype)initWithFrame:(CGRect)frame UNAVAILABLE_ATTRIBUTE;
-- (instancetype)initWithCoder:(NSCoder *)aDecoder UNAVAILABLE_ATTRIBUTE;
-
 + (instancetype)photoBrowser;
 - (void)show;
+- (void)hide;
 
+- (void)reloadData;
 @end

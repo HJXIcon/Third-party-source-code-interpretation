@@ -13,5 +13,5 @@
 @property (nonatomic, weak) UIScrollView *contentScrollView;
 @property (nonatomic, weak) JXPhotoPreView *photoPreView;
 @property (nonatomic, strong) JXPhotoModel *photoModel;
-
+@property (nonatomic, assign) CGFloat scale;
 @end

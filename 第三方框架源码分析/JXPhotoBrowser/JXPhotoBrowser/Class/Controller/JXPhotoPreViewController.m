@@ -11,14 +11,40 @@
 #import "UIView+JXExtension.h"
 #import "JXPhotoBrowserConst.h"
 #import "JXPhotoModel.h"
+#import "JXPhotoPreView.h"
+#import "JXPhotoBrowser.h"
+#import "JXProgressView.h"
 
 @interface JXPhotoPreViewController ()<UICollectionViewDataSource,UICollectionViewDelegate>
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) NSMutableArray <JXPhotoModel *>* photos;
+
+@property (nonatomic, weak) JXPhotoPreView *maskPreView;
+@property (nonatomic, weak) UIView *sourceImageContainerView;
+
+
 @end
 
 @implementation JXPhotoPreViewController
 #pragma mark - *** lazy load
+- (JXProgressView *)progressView{
+    if (_progressView == nil) {
+        _progressView = [[JXProgressView alloc]initWithFrame:CGRectMake(0, 0, 80, 80)];
+        JXPhotoBrowser *photoBrowser;
+        for (UIWindow *win in [UIApplication sharedApplication].windows) {
+            if ([win isKindOfClass:[JXPhotoBrowser class]]) {
+                photoBrowser = (JXPhotoBrowser *)win;
+                break;
+            }
+        }
+        _progressView.center = photoBrowser.center;
+        [photoBrowser addSubview:_progressView];
+        [photoBrowser bringSubviewToFront:_progressView];
+    }
+    
+    return _progressView;
+}
+
 - (NSMutableArray<JXPhotoModel *> *)photos{
     if (_photos == nil) {
         _photos = [NSMutableArray array];
@@ -56,6 +82,10 @@
 #pragma mark - *** Cycle life
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(showImageOriginFrameAction:) name:JXShowPhotoBrowserOriginFrameNoti object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideNotiAcion) name:JXHidePhotoBrowserNoti object:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -63,26 +93,87 @@
     [self.view addSubview:self.collectionView];
 }
 
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:JXShowPhotoBrowserOriginFrameNoti object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:JXHidePhotoBrowserNoti object:nil];
+}
+
+- (void)showImageOriginFrameAction:(NSNotification *)noti{
+    
+    self.collectionView.alpha = 0;
+    UIView *sourceImageContainerView = noti.object;
+    self.sourceImageContainerView = sourceImageContainerView;
+    JXPhotoPreView *preView = [[JXPhotoPreView alloc]init];
+    
+    JXPhotoModel *photo = self.photos[self.currentImageIndex];
+    UIImage *preImage = photo.preImage ? photo.preImage : self.placeholderImages[self.currentImageIndex];
+    preView.image = preImage;
+    
+    // 转移坐标
+    preView.frame = [sourceImageContainerView.superview  convertRect:sourceImageContainerView.frame toView:self.photoBrowser];
+    
+    [self.photoBrowser addSubview:preView];
+    self.maskPreView = preView;
+    
+    [UIView animateWithDuration:2 animations:^{
+        // 放大图片
+        preView.jx_width = self.collectionView.jx_width - ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).minimumLineSpacing;
+        preView.jx_height = JXScreenW * preImage.size.height / preImage.size.width;
+        preView.center = CGPointMake(JXScreenW * 0.5, JXScreenH * 0.5);
+        
+    } completion:^(BOOL finished) {
+        preView.hidden = YES;
+        self.collectionView.alpha = 1;
+    }];
+}
+
+
+
+- (void)hideNotiAcion{
+    JXPhotoPreView *coypPreView = self.maskPreView;
+    coypPreView.hidden = NO;
+    self.photoBrowser.backgroundColor = [UIColor clearColor];
+    CGRect beginFrame = [self.photoBrowser convertRect:self.sourceImageContainerView.frame toView:[self.sourceImageContainerView superview]];
+    
+    [UIView animateWithDuration:2 animations:^{
+        self.collectionView.alpha = 0.0;
+        // 恢复矩阵变换
+        coypPreView.transform = CGAffineTransformIdentity;
+        coypPreView.frame = beginFrame;
+        
+    }completion:^(BOOL finished) {
+        [self.photoBrowser hide];
+    }];
+}
+
 #pragma mark - *** setter
-- (void)setOriginal_pics:(NSArray<NSString *> *)original_pics{
-    _original_pics = original_pics;
+- (void)setHighQualityImages:(NSArray<NSURL *> *)highQualityImages{
+    _highQualityImages = highQualityImages;
     [self _setupPhotos];
 }
 
-- (void)setThumbnail_pics:(NSArray<NSString *> *)thumbnail_pics{
-    _thumbnail_pics = thumbnail_pics;
+- (void)setPlaceholderImages:(NSArray<UIImage *> *)placeholderImages{
+    _placeholderImages = placeholderImages;
     [self _setupPhotos];
+}
+
+- (void)setCurrentImageIndex:(NSInteger)currentImageIndex{
+    _currentImageIndex = currentImageIndex;
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentImageIndex inSection:0];
+    //
+    [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
 }
 
 #pragma mark - *** Private Method
 - (void)_setupPhotos{
-    
-    NSInteger max = self.original_pics.count > self.thumbnail_pics.count ? self.original_pics.count : self.thumbnail_pics.count;
-    
-    for (NSInteger i = 0; i < max; i ++) {
+    self.photos = nil;
+    for (NSInteger i = 0; i < _placeholderImages.count; i ++) {
         JXPhotoModel *model = [[JXPhotoModel alloc]init];
-        model.original_pic = i < self.original_pics.count ? self.original_pics[i] : nil;
-        model.thumbnail_pic = i < self.thumbnail_pics.count ? self.thumbnail_pics[i] : nil;
+        if (_highQualityImages.count) {
+            model.highImageURL = i >_highQualityImages.count ? nil : _highQualityImages[i];
+        }
+        model.placeholderImage = _placeholderImages[i];
         model.bigImage = YES;
         [self.photos addObject:model];
     }

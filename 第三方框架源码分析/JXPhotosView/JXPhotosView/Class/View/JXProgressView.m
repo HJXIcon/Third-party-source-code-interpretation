@@ -9,12 +9,29 @@
 #import "JXProgressView.h"
 
 CGFloat const JXProgressViewItemMargin = 10;
-CGFloat const JXProgressViewLoopDiagramWidth = 3;
+CGFloat const JXProgressViewLoopDiagramWidth = 5;
 
 // 图片下载进度指示器背景色
 #define JXProgressViewBackgroundColor [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7]
 
+@interface JXProgressView()
+@property (nonatomic, strong) UILabel *label;
+@end
+
 @implementation JXProgressView
+
+- (UILabel *)label{
+    if (_label == nil) {
+        
+        _label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 50, 25)];
+        _label.textColor = [UIColor whiteColor];
+        _label.font = [UIFont systemFontOfSize:9];
+        [_label sizeToFit];
+        _label.center = self.center;
+        
+    }
+    return _label;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -30,7 +47,7 @@ CGFloat const JXProgressViewLoopDiagramWidth = 3;
 
 - (void)setProgress:(CGFloat)progress{
     _progress = progress;
-
+    
     //将重绘操作放在主线程，解决自动布局控制台报错的问题
     dispatch_async(dispatch_get_main_queue(), ^{
         
@@ -80,6 +97,13 @@ CGFloat const JXProgressViewLoopDiagramWidth = 3;
             CGFloat radius = MIN(rect.size.width, rect.size.height) * 0.5 - JXProgressViewItemMargin;
             CGContextAddArc(ctx, xCenter, yCenter, radius, - M_PI * 0.5, to, 0);
             CGContextStrokePath(ctx);
+            
+            if (![self.subviews containsObject:self.label]) {
+               [self addSubview:self.label];
+               [self bringSubviewToFront:self.label];
+            }
+            self.label.text = [NSString stringWithFormat:@"%d",(int)self.progress * 100];
+            
         }
             break;
     }

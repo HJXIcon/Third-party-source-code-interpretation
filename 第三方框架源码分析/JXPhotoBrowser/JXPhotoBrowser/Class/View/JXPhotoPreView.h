@@ -8,14 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class JXPhotoModel,JXPhotoPreviewCell;
+@class JXPhotoModel,JXPhotoPreviewCell,JXPhotoPreViewController;
 
 @interface JXPhotoPreView : UIImageView
 
 @property (nonatomic, strong) JXPhotoModel *photo;
-@property (nonatomic, strong) UIImage *placeholderImage;
 @property (nonatomic, weak) JXPhotoPreviewCell *previewCell;
-/** 放大的倍数 */
-@property (nonatomic, assign) CGFloat scale;
-
+@property (nonatomic, weak) JXPhotoPreViewController *photoPreViewController;
 @end

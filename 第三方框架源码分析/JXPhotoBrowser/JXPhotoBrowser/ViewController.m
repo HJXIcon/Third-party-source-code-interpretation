@@ -8,17 +8,23 @@
 
 #import "ViewController.h"
 #import "JXPhotoBrowser.h"
+#import "SDImageCache.h"
 
-@interface ViewController ()
+@interface ViewController ()<JXPhotoBrowserDataSource>
+@property (nonatomic, strong) NSArray *images;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    [[SDImageCache sharedImageCache]cleanDisk];
+    [[SDImageCache sharedImageCache]clearDisk];
+    [[SDImageCache sharedImageCache]clearMemory];
 }
+
 - (IBAction)show:(UIButton *)sender {
+    
     
     JXPhotoBrowser *p = [JXPhotoBrowser photoBrowser];
     // 1.2 创建图片原图链接数组
@@ -33,7 +39,10 @@
     [originalImageUrls addObject:@"http://ww1.sinaimg.cn/large/75b1a75fjw1f6bqn35ij6j20ck0g8jtf.jpg"];
     [originalImageUrls addObject:@"http://ww4.sinaimg.cn/bmiddle/406ef017jw1ec40av2nscj20ip4p0b29.jpg"];
     [originalImageUrls addObject:@"http://ww1.sinaimg.cn/large/86afb21egw1f6bq3lq0itj20gg0c2myt.jpg"];
-    p.original_pics = originalImageUrls;
+    self.images = originalImageUrls;
+    
+    p.sourceImageContainerView = sender;
+    p.dataSource = self;
     [p show];
 }
 
@@ -41,7 +50,24 @@
     
 }
 
+- (NSInteger)photoBrowserCurrentImageIndex:(JXPhotoBrowser *)browser{
+    NSInteger index = arc4random_uniform(self.images.count);
+    return index;
+}
+
+- (NSInteger)photoBrowserImageCount:(JXPhotoBrowser *)browser{
+    
+    return self.images.count;
+}
+
+- (UIImage *)photoBrowser:(JXPhotoBrowser *)browser placeholderImageForIndex:(NSInteger)index{
+    
+    return [UIImage imageNamed:@"1"];
+}
 
 
+- (NSURL *)photoBrowser:(JXPhotoBrowser *)browser highQualityImageURLForIndex:(NSInteger)index{
+    return self.images[index];
+}
 
 @end
