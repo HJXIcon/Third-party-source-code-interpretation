@@ -20,4 +20,5 @@ UIKIT_EXTERN CGFloat const JXProgressViewLoopDiagramWidth;
 @interface JXProgressView : UIView
 @property (nonatomic, assign) CGFloat progress;
 @property (nonatomic, assign) JXProgressViewMode mode;
+
 @end

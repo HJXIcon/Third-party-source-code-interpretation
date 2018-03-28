@@ -22,8 +22,6 @@
 
 @implementation JXPhotoBrowser
 
-
-
 + (instancetype)photoBrowser{
     return [[self alloc]initWithFrame:CGRectMake(0, 0, JXScreenW, JXScreenH)];
 }

@@ -24,13 +24,12 @@
 
 
 // cell的宽
-#define JXPreviewCellW (_previewCell.jx_width > 0 ? _previewCell.jx_width : JXScreenW)
+#define JXPreviewCellW (self.jx_width > 0 ? self.jx_width : JXScreenW)
 // cell的高
-#define JXPreviewCellH (_previewCell.jx_height > 0 ? _previewCell.jx_height : JXScreenH)
+#define JXPreviewCellH (self.jx_height > 0 ? self.jx_height : JXScreenH)
 
 
 UIKIT_EXTERN const CGFloat PYPreviewPhotoSpacing;   // 预览图片时，图片的间距（默认为30
 
-UIKIT_EXTERN  NSString * const JXAddGestureRecognizersNoti;
 UIKIT_EXTERN  NSString * const JXHidePhotoBrowserNoti;
 UIKIT_EXTERN  NSString * const JXShowPhotoBrowserOriginFrameNoti;

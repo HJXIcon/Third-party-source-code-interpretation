@@ -16,5 +16,6 @@
 @property (nonatomic, assign, getter=isBigImage) BOOL bigImage;
 
 // 预览的动画
-@property (nonatomic, strong) UIImage *preImage;
+@property (nonatomic, strong) UIImage *highImage;
+
 @end

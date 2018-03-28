@@ -15,5 +15,5 @@
 @property (nonatomic, strong) NSArray<UIImage *> *placeholderImages;
 @property (nonatomic, strong) NSArray<NSURL *> *highQualityImages;
 @property (nonatomic, assign) NSInteger currentImageIndex;
-@property (nonatomic, strong) JXProgressView *progressView;
+
 @end

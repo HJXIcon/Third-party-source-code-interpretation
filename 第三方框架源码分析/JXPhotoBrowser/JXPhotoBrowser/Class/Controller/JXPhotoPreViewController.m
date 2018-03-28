@@ -27,23 +27,6 @@
 
 @implementation JXPhotoPreViewController
 #pragma mark - *** lazy load
-- (JXProgressView *)progressView{
-    if (_progressView == nil) {
-        _progressView = [[JXProgressView alloc]initWithFrame:CGRectMake(0, 0, 80, 80)];
-        JXPhotoBrowser *photoBrowser;
-        for (UIWindow *win in [UIApplication sharedApplication].windows) {
-            if ([win isKindOfClass:[JXPhotoBrowser class]]) {
-                photoBrowser = (JXPhotoBrowser *)win;
-                break;
-            }
-        }
-        _progressView.center = photoBrowser.center;
-        [photoBrowser addSubview:_progressView];
-        [photoBrowser bringSubviewToFront:_progressView];
-    }
-    
-    return _progressView;
-}
 
 - (NSMutableArray<JXPhotoModel *> *)photos{
     if (_photos == nil) {
@@ -106,7 +89,7 @@
     JXPhotoPreView *preView = [[JXPhotoPreView alloc]init];
     
     JXPhotoModel *photo = self.photos[self.currentImageIndex];
-    UIImage *preImage = photo.preImage ? photo.preImage : self.placeholderImages[self.currentImageIndex];
+    UIImage *preImage = photo.highImage ? photo.highImage : self.placeholderImages[self.currentImageIndex];
     preView.image = preImage;
     
     // 转移坐标

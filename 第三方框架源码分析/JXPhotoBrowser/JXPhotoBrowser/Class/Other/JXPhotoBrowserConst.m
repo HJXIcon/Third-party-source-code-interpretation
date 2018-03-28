@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 const CGFloat PYPreviewPhotoSpacing = 30;   // 预览图片时，图片的间距
-NSString * const JXAddGestureRecognizersNoti = @"JXAddGestureRecognizersNoti";
 NSString * const JXHidePhotoBrowserNoti = @"JXHidePhotoBrowserNoti";
 NSString * const JXShowPhotoBrowserOriginFrameNoti = @"JXShowPhotoBrowserOriginFrameNoti";
 

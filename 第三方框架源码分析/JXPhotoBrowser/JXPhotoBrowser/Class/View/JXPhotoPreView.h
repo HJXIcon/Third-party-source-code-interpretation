@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@class JXPhotoModel,JXPhotoPreviewCell,JXPhotoPreViewController;
-
 @interface JXPhotoPreView : UIImageView
 
-@property (nonatomic, strong) JXPhotoModel *photo;
-@property (nonatomic, weak) JXPhotoPreviewCell *previewCell;
-@property (nonatomic, weak) JXPhotoPreViewController *photoPreViewController;
+
+- (void)setImageWithURL:(NSURL *)url
+       placeholderImage:(UIImage *)placeholder
+              completed:(void(^)(UIImage *image))complete;
+
+- (void)removeProgressView;
 @end
