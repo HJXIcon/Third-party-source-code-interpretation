@@ -98,7 +98,7 @@
     [self.photoBrowser addSubview:preView];
     self.maskPreView = preView;
     
-    [UIView animateWithDuration:2 animations:^{
+    [UIView animateWithDuration:JXPhotoBrowserAnimateDuration animations:^{
         // 放大图片
         preView.jx_width = self.collectionView.jx_width - ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).minimumLineSpacing;
         preView.jx_height = JXScreenW * preImage.size.height / preImage.size.width;
@@ -118,7 +118,7 @@
     self.photoBrowser.backgroundColor = [UIColor clearColor];
     CGRect beginFrame = [self.photoBrowser convertRect:self.sourceImageContainerView.frame toView:[self.sourceImageContainerView superview]];
     
-    [UIView animateWithDuration:2 animations:^{
+    [UIView animateWithDuration:JXPhotoBrowserAnimateDuration animations:^{
         self.collectionView.alpha = 0.0;
         // 恢复矩阵变换
         coypPreView.transform = CGAffineTransformIdentity;

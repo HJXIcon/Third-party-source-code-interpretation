@@ -11,6 +11,8 @@
 #import "JXPhotoBrowserConst.h"
 #import "JXProgressView.h"
 #import "UIImageView+WebCache.h"
+#import <objc/runtime.h>
+
 
 @interface JXPhotoPreView()
 @property (nonatomic, weak) JXProgressView *progressView;
@@ -18,7 +20,6 @@
 @implementation JXPhotoPreView
 
 #pragma mark - *** setter
-
 - (void)setImageWithURL:(NSURL *)url
        placeholderImage:(UIImage *)placeholder
               completed:(void(^)(UIImage *image))complete{

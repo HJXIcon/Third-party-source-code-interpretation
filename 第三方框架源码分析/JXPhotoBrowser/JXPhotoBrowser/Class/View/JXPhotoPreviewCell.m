@@ -3,7 +3,7 @@
 //  JXPhotoBrowser
 //
 //  Created by HJXICon on 2018/3/21.
-//  Copyright © 2018年 HJXICon. All rights reserved.
+//  CoJXright © 2018年 HJXICon. All rights reserved.
 //
 
 #import "JXPhotoPreviewCell.h"
@@ -14,9 +14,12 @@
 
 @interface JXPhotoPreviewCell()
 @property (nonatomic, assign) CGPoint scrollViewAnchorPoint;
-@property (nonatomic, assign) CGPoint preViewCellAnchorPoint;
+@property (nonatomic, assign) CGPoint preViewCellAnchorPoint;//cell上的触摸点
 
 @property (nonatomic, assign, getter=isDoubleTap) BOOL doubleTap;
+/** 手势状态 */
+@property (nonatomic, assign) UIGestureRecognizerState state;
+@property (nonatomic, assign, getter=isRotationGesture) BOOL rotationGesture;
 @end
 
 @implementation JXPhotoPreviewCell
@@ -24,6 +27,7 @@
 - (instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
         [self _setupUI];
+        [self _setupConfig];
     }
     return self;
 }
@@ -32,9 +36,14 @@
     [super prepareForReuse];
     [_photoPreView removeProgressView];
     self.doubleTap = NO;
-    [self _clearZoom];
+    self.photoPreView.transform = CGAffineTransformIdentity;
 }
 
+
+- (void)dealloc{
+    [self removeObserver:self.photoPreView forKeyPath:@"transform"];
+}
+#pragma mark - *** Private Method
 - (void)_setupUI{
     
     UIScrollView *contentScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, JXScreenW, JXScreenH)];
@@ -49,12 +58,12 @@
     [self.contentScrollView addSubview:imageView];
 }
 
-#pragma mark - *** Private Method
 - (void)_setupConfig{
     // 设置原始锚点
     self.scrollViewAnchorPoint = self.layer.anchorPoint;
     // 默认放大倍数和旋转角度
     self.scale = 2.0;
+    [self.photoPreView addObserver:self forKeyPath:@"transform" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 }
 
 - (void)_addGestureRecognizers{
@@ -84,6 +93,7 @@
     
 }
 
+// scrollView的虚拟锚点
 /** 根据手势触摸点修改相应的锚点，就是沿着触摸点做相应的手势操作 */
 - (CGPoint)_setAnchorPointBaseOnGestureRecognizer:(UIGestureRecognizer *)gr
 {
@@ -93,7 +103,7 @@
     // 创建锚点
     CGPoint anchorPoint; // scrollView的虚拟锚点
     CGPoint cellAnchorPoint; // photoCell的虚拟锚点
-    UIScrollView *scrollView = (UIScrollView *)[self superview];
+    UIScrollView *scrollView = self.contentScrollView;
     if ([gr isKindOfClass:[UIPinchGestureRecognizer class]]) { // 捏合手势
         {
             // 当触摸开始时，获取两个触摸点
@@ -102,6 +112,7 @@
             CGPoint point2 = [gr locationOfTouch:1 inView:scrollView];
             anchorPoint.x = (point1.x + point2.x) / 2.0 / scrollView.contentSize.width;
             anchorPoint.y = (point1.y + point2.y) / 2.0 / scrollView.contentSize.height;
+            
             // 获取cell上的触摸点
             CGPoint screenPoint1 = [gr locationOfTouch:0 inView:gr.view];
             CGPoint screenPoint2 = [gr locationOfTouch:1 inView:gr.view];
@@ -113,6 +124,7 @@
         CGPoint scrollViewPoint = [gr locationOfTouch:0 inView:scrollView];
         anchorPoint.x = scrollViewPoint.x / scrollView.contentSize.width;
         anchorPoint.y = scrollViewPoint.y / scrollView.contentSize.height;
+        
         // 获取cell上的触摸点
         CGPoint photoCellPoint = [gr locationOfTouch:0 inView:gr.view];
         cellAnchorPoint.x = photoCellPoint.x / gr.view.jx_width;
@@ -134,9 +146,9 @@
     
     [UIView animateWithDuration:0.25  delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
         if (self.isDoubleTap) {
-            [self _zoomWithScale:1];
+            self.photoPreView.transform = CGAffineTransformScale(self.photoPreView.transform, self.scale, self.scale);
         }else{
-            [self _zoomWithScale:2];
+            self.photoPreView.transform = CGAffineTransformIdentity;
         }
         
     } completion:^(BOOL finished) {
@@ -147,8 +159,51 @@
 - (void)longPressAction:(UILongPressGestureRecognizer *)ges{
     
 }
-- (void)pinchAction:(UIPinchGestureRecognizer *)ges{
+
+- (void)pinchAction:(UIPinchGestureRecognizer *)pinch{
     
+    
+    if (pinch.numberOfTouches < 2) { // 只有一只手指，取消手势
+        [pinch setCancelsTouchesInView:YES];
+        [pinch setValue:@(UIGestureRecognizerStateEnded) forKeyPath:@"state"];
+    }
+    
+    
+    if (pinch.state == UIGestureRecognizerStateChanged) {
+        // 1.获取锚点
+        self.scrollViewAnchorPoint = [self _setAnchorPointBaseOnGestureRecognizer:pinch];
+        
+        // 2.当对图片放大到最大最次放大时，缩放因子就会变小
+        CGFloat scaleFactor = 1.0;
+        if (self.photoPreView.jx_width > JXPreviewCellW * JXPreviewPhotoMaxScale && pinch.scale > 1.0) {
+            scaleFactor =  (1 + 0.01 * pinch.scale) /  pinch.scale;
+        }
+        // 3.记录手势
+        self.state = pinch.state;
+        self.rotationGesture = NO;
+        self.photoPreView.transform = CGAffineTransformScale(self.photoPreView.transform, pinch.scale * scaleFactor, pinch.scale * scaleFactor);
+        
+        // 4.复位
+        pinch.scale = 1;
+    }
+    
+    if (pinch.state == UIGestureRecognizerStateEnded
+        || pinch.state == UIGestureRecognizerStateFailed
+        || pinch.state == UIGestureRecognizerStateCancelled) { // 手势结束\取消\失败
+        
+        // 判断是否缩小
+        CGFloat scale = 1;
+       
+        // 复位
+        [UIView animateWithDuration:0.25  delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+            self.photoPreView.transform = CGAffineTransformScale(self.photoPreView.transform, scale, scale);
+        } completion:^(BOOL finished) {
+            
+        }];
+        
+        
+        
+    }
 }
 - (void)rotationAction:(UIRotationGestureRecognizer *)ges{
     
@@ -168,54 +223,67 @@
 
 
 - (void)_adjustSize:(UIImage *)image{
+    
     CGFloat height = JXPreviewCellW * image.size.height / image.size.width;
+    
     self.clipsToBounds = YES;
     self.contentMode = UIViewContentModeScaleAspectFill;
     
-    if (height > JXPreviewCellH) { // 长图
-        self.photoPreView.jx_size = CGSizeMake(JXPreviewCellW, JXPreviewCellW * image.size.height / image.size.width);
-        
-    }else{
-        if (image.size.width > JXPreviewCellW) {//超过cellW
-            self.photoPreView.jx_size = CGSizeMake(JXPreviewCellW,JXPreviewCellW * image.size.height / image.size.width);
-            
-        }else{
-            self.photoPreView.jx_size = image.size;
-        }
+    self.photoPreView.jx_size = CGSizeMake(JXPreviewCellW,height);
+    self.contentScrollView.jx_size = self.photoPreView.jx_size;
+    
+    if (self.photoPreView.jx_size.height > JXPreviewCellH) { // 长图
+        self.contentScrollView.jx_height = JXPreviewCellH;
+    }
+    if (self.photoPreView.jx_size.width > JXPreviewCellW) {//超过cellW
+        self.contentScrollView.jx_width = JXPreviewCellW;
     }
     
+    self.contentScrollView.center = self.contentView.center;
+    self.photoPreView.jx_origin = CGPointZero;
     self.contentScrollView.contentSize = self.photoPreView.jx_size;
-    self.photoPreView.center = self.contentScrollView.center;
-    
+   
     // 刷新
     [self setNeedsLayout];
 }
 
-- (void)_zoomWithScale:(CGFloat)scale{
-    
-    if (scale > 1) {
-        self.photoPreView.transform = CGAffineTransformScale(self.photoPreView.transform, scale, scale);
-        CGFloat contentW = self.photoPreView.frame.size.width;
-        CGFloat contentH = MAX(self.photoPreView.frame.size.height, self.frame.size.height);
-        
-        self.photoPreView.center = CGPointMake(contentW * 0.5, contentH * 0.5);
-        self.contentScrollView.contentSize = CGSizeMake(contentW, contentH);
-        
-        CGPoint offset = self.contentScrollView.contentOffset;
-        offset.x = (contentW - self.contentScrollView.frame.size.width) * 0.5;
-        self.contentScrollView.contentOffset = offset;
-        
-    } else {
-        [self _clearZoom];
-    }
-    
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    [self _changePhotoViewTransformAction];
 }
 
-- (void)_clearZoom{
-    self.photoPreView.transform = CGAffineTransformIdentity;
-    self.contentScrollView.contentSize = self.contentScrollView.frame.size;
-    self.contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.photoPreView.center = self.contentScrollView.center;
+- (void)_changePhotoViewTransformAction{
+    
+    // 如果手势没结束、没有放大、旋转手势，返回
+    if (self.isRotationGesture) return;
+    
+    // 调整scrollView
+    // 恢复photoView的x/y位置
+    self.photoPreView.jx_origin = CGPointZero;
+    
+    // 修改contentScrollView的属性
+    UIScrollView *contentScrollView = self.contentScrollView;
+    contentScrollView.jx_height = self.photoPreView.jx_height < JXPreviewCellH ? self.photoPreView.jx_height : JXPreviewCellH;
+    contentScrollView.jx_width = self.photoPreView.jx_width < JXPreviewCellW ? self.photoPreView.jx_width : JXPreviewCellW;
+    
+    contentScrollView.contentSize = self.photoPreView.jx_size;
+    
+    // 根据模拟锚点调整偏移量
+    CGFloat offsetX = contentScrollView.contentSize.width * self.scrollViewAnchorPoint.x - contentScrollView.jx_width * self.preViewCellAnchorPoint.x;
+    CGFloat offsetY = contentScrollView.contentSize.height * self.scrollViewAnchorPoint.y - contentScrollView.jx_height * self.preViewCellAnchorPoint.y;
+    
+    if (ABS(offsetX) + contentScrollView.jx_width > contentScrollView.contentSize.width) { // 偏移量超出范围
+        offsetX = offsetX > 0 ? contentScrollView.contentSize.width - contentScrollView.jx_width : contentScrollView.jx_width - contentScrollView.contentSize.width;
+    }
+    if (ABS(offsetY) + contentScrollView.jx_height > contentScrollView.contentSize.height) {  // 偏移量超出范围
+        offsetY = offsetY > 0 ? contentScrollView.contentSize.height - contentScrollView.jx_height :
+        contentScrollView.jx_height - contentScrollView.contentSize.height;
+    }
+    // 最后调整
+    offsetX = offsetX < 0 ? 0 : offsetX;
+    offsetY = offsetY < 0 ? 0 : offsetY;
+    contentScrollView.contentOffset = CGPointMake(offsetX, offsetY);
+    contentScrollView.center = CGPointMake(JXPreviewCellW * 0.5, JXPreviewCellH * 0.5);
 }
 
 @end
