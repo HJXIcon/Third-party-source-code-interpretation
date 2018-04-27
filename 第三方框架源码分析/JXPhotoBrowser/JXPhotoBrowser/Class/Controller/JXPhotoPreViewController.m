@@ -69,6 +69,7 @@
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(showImageOriginFrameAction:) name:JXShowPhotoBrowserOriginFrameNoti object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hideNotiAcion) name:JXHidePhotoBrowserNoti object:nil];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -82,7 +83,7 @@
 }
 
 - (void)showImageOriginFrameAction:(NSNotification *)noti{
-    
+
     self.collectionView.alpha = 0;
     UIView *sourceImageContainerView = noti.object;
     self.sourceImageContainerView = sourceImageContainerView;
@@ -108,11 +109,15 @@
         preView.hidden = YES;
         self.collectionView.alpha = 1;
     }];
+    
+    
+    
 }
 
 
 
 - (void)hideNotiAcion{
+    
     JXPhotoPreView *coypPreView = self.maskPreView;
     coypPreView.hidden = NO;
     self.photoBrowser.backgroundColor = [UIColor clearColor];
@@ -127,6 +132,8 @@
     }completion:^(BOOL finished) {
         [self.photoBrowser hide];
     }];
+    
+    
 }
 
 #pragma mark - *** setter

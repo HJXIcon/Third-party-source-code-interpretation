@@ -19,6 +19,7 @@
 @end
 @implementation JXPhotoPreView
 
+
 #pragma mark - *** setter
 - (void)setImageWithURL:(NSURL *)url
        placeholderImage:(UIImage *)placeholder

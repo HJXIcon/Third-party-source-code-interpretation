@@ -15,23 +15,11 @@ CGFloat const JXProgressViewLoopDiagramWidth = 5;
 #define JXProgressViewBackgroundColor [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7]
 
 @interface JXProgressView()
-@property (nonatomic, strong) UILabel *label;
+
 @end
 
 @implementation JXProgressView
 
-- (UILabel *)label{
-    if (_label == nil) {
-        
-        _label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 50, 25)];
-        _label.textColor = [UIColor whiteColor];
-        _label.font = [UIFont systemFontOfSize:9];
-        [_label sizeToFit];
-        _label.center = self.center;
-        
-    }
-    return _label;
-}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -41,6 +29,7 @@ CGFloat const JXProgressViewLoopDiagramWidth = 5;
         self.layer.cornerRadius = 5;
         self.clipsToBounds = YES;
         self.mode = JXProgressViewModeLoopDiagram;
+        
     }
     return self;
 }
@@ -52,6 +41,7 @@ CGFloat const JXProgressViewLoopDiagramWidth = 5;
     dispatch_async(dispatch_get_main_queue(), ^{
         
         [self setNeedsDisplay];
+        
         if (progress >= 1) {
             [self removeFromSuperview];
         }
@@ -87,10 +77,13 @@ CGFloat const JXProgressViewLoopDiagramWidth = 5;
             
             CGContextFillPath(ctx);
         }
+            
             break;
             
         default:
         {
+
+
             CGContextSetLineWidth(ctx, JXProgressViewLoopDiagramWidth);
             CGContextSetLineCap(ctx, kCGLineCapRound);
             CGFloat to = - M_PI * 0.5 + self.progress * M_PI * 2 + 0.05; // 初始值0.05
@@ -98,11 +91,7 @@ CGFloat const JXProgressViewLoopDiagramWidth = 5;
             CGContextAddArc(ctx, xCenter, yCenter, radius, - M_PI * 0.5, to, 0);
             CGContextStrokePath(ctx);
             
-            if (![self.subviews containsObject:self.label]) {
-               [self addSubview:self.label];
-               [self bringSubviewToFront:self.label];
-            }
-            self.label.text = [NSString stringWithFormat:@"%d",(int)self.progress * 100];
+            
             
         }
             break;

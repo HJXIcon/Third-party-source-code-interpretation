@@ -35,6 +35,7 @@
 - (void)prepareForReuse{
     [super prepareForReuse];
     [_photoPreView removeProgressView];
+    
     self.doubleTap = NO;
     self.photoPreView.transform = CGAffineTransformIdentity;
 }
@@ -56,6 +57,7 @@
     JXPhotoPreView *imageView = [[JXPhotoPreView alloc] init];
     _photoPreView = imageView;
     [self.contentScrollView addSubview:imageView];
+    
 }
 
 - (void)_setupConfig{

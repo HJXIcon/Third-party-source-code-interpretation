@@ -81,7 +81,10 @@ static UILabel *toastView = nil;
 }
 
 //根据字符串长度获取对应的宽度或者高度
-+ (CGFloat)stringText:(NSString *)text font:(CGFloat)font isHeightFixed:(BOOL)isHeightFixed fixedValue:(CGFloat)fixedValue
++ (CGFloat)stringText:(NSString *)text
+                 font:(CGFloat)font
+        isHeightFixed:(BOOL)isHeightFixed
+           fixedValue:(CGFloat)fixedValue
 {
     CGSize size;
     if (isHeightFixed) {

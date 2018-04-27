@@ -109,10 +109,13 @@ const void *_ARSEGMENTPAGE_CURRNTPAGE_SCROLLVIEWINSET =
     self.view.preservesSuperviewLayoutMargins = YES;
   }
   self.extendedLayoutIncludesOpaqueBars = NO;
+
+  // headerView
   self.headerView = [self customHeaderView];
   self.headerView.clipsToBounds = YES;
   [self.view addSubview:self.headerView];
-
+ 
+  // segmentView
   self.segmentView = [[ARSegmentView alloc] init];
   [self.segmentView.segmentControl
              addTarget:self
@@ -249,6 +252,7 @@ const void *_ARSEGMENTPAGE_CURRNTPAGE_SCROLLVIEWINSET =
                                        multiplier:1
                                          constant:0]];
 
+  // 当前控制器是否包含scrollView
   UIScrollView *scrollView = [self scrollViewInPageController:pageController];
   if (scrollView) {
     scrollView.alwaysBounceVertical = YES;
@@ -262,7 +266,7 @@ const void *_ARSEGMENTPAGE_CURRNTPAGE_SCROLLVIEWINSET =
     if (self.tabBarController.tabBar.hidden == NO) {
       bottomInset = CGRectGetHeight(self.tabBarController.tabBar.bounds);
     }
-
+      
     [scrollView
         setContentInset:UIEdgeInsetsMake(_originalTopInset, 0, bottomInset, 0)];
     //     fixed first time don't show header view
