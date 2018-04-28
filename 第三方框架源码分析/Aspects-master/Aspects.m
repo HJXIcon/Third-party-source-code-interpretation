@@ -5,6 +5,11 @@
 //  Copyright (c) 2014 Peter Steinberger. Licensed under the MIT license.
 //
 
+/*！
+ 原理分析 http://wereadteam.github.io/2016/06/30/Aspects/
+ */
+
+
 #import "Aspects.h"
 #import <libkern/OSAtomic.h>
 #import <objc/runtime.h>
@@ -139,6 +144,7 @@ static id aspect_add(id self, SEL selector, AspectOptions options, id block, NSE
     NSCParameterAssert(block);
 
     __block AspectIdentifier *identifier = nil;
+    // 1.确保线程安全
     aspect_performLocked(^{
         if (aspect_isSelectorAllowedAndTrack(self, selector, options, error)) {
             AspectsContainer *aspectContainer = aspect_getContainerForObject(self, selector);
@@ -289,10 +295,14 @@ static IMP aspect_getMsgForwardIMP(NSObject *self, SEL selector) {
 static void aspect_prepareClassAndHookSelector(NSObject *self, SEL selector, NSError **error) {
     NSCParameterAssert(selector);
     
+    /*！ 这是真正的核心逻辑，swizzling method 主要有两部分，一个是对对象的 forwardInvocation 进行 swizzling,另一个是对传入的 selector 进行 swizzling.
+     */
     // 1.将class的forwardInvocation:方法hook走
     Class klass = aspect_hookClass(self, error);
     Method targetMethod = class_getInstanceMethod(klass, selector);
     IMP targetMethodIMP = method_getImplementation(targetMethod);
+    
+    
     // 2.方法别名, 将原来的IMP放到此selector中, 并添加到class的method列表中
     if (!aspect_isMsgForwardIMP(targetMethodIMP)) {
         // Make a method alias for the existing method implementation, it not already copied.
@@ -370,6 +380,7 @@ static void aspect_cleanupHookedClassAndSelector(NSObject *self, SEL selector) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Hook Class
 
+
 // 为了能区别 Class 和 Instance 的逻辑
 static Class aspect_hookClass(NSObject *self, NSError **error) {
     NSCParameterAssert(self);
@@ -443,7 +454,7 @@ static Class aspect_hookClass(NSObject *self, NSError **error) {
 		objc_registerClassPair(subclass);
 	}
 
-    // 覆盖 isa
+    // 将当前self设置为子类，这里其实只是更改了self的isa指针而已
 	object_setClass(self, subclass);
 	return subclass;
 }
@@ -542,9 +553,9 @@ static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL
     NSCParameterAssert(self);
     NSCParameterAssert(invocation);
     SEL originalSelector = invocation.selector;
-    // originalSelector 加前缀得到 aliasSelector
+    // 1.originalSelector 加前缀得到 aliasSelector
 	SEL aliasSelector = aspect_aliasForSelector(invocation.selector);
-    // 用 aliasSelector 替换 invocation.selector
+    // 2.用 aliasSelector 替换 invocation.selector
     invocation.selector = aliasSelector;
     
     /// 容器
@@ -605,7 +616,7 @@ static void __ASPECTS_ARE_BEING_CALLED__(__unsafe_unretained NSObject *self, SEL
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Aspect Container Management
-
+// 创建AspectsContainer
 // Loads or creates the aspect container.
 static AspectsContainer *aspect_getContainerForObject(NSObject *self, SEL selector) {
     NSCParameterAssert(self);
@@ -647,6 +658,7 @@ static NSMutableDictionary *aspect_getSwizzledClassesDict() {
     return swizzledClassesDict;
 }
 
+
 static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, AspectOptions options, NSError **error) {
     static NSSet *disallowedSelectorList;
     static dispatch_once_t pred;
@@ -654,6 +666,7 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
         disallowedSelectorList = [NSSet setWithObjects:@"retain", @"release", @"autorelease", @"forwardInvocation:", nil];
     });
 
+    // 1.Swizzle了不能Swizzle的方法，比如@retain", @"release", @"autorelease", @"forwardInvocation:"：如果替换了这样的方法，我们是不能成功进行Swizzle的。
     // Check against the blacklist.
     NSString *selectorName = NSStringFromSelector(selector);
     if ([disallowedSelectorList containsObject:selectorName]) {
@@ -725,7 +738,7 @@ static BOOL aspect_isSelectorAllowedAndTrack(NSObject *self, SEL selector, Aspec
 	} else {
 		return YES;
 	}
-
+    
     return YES;
 }
 
