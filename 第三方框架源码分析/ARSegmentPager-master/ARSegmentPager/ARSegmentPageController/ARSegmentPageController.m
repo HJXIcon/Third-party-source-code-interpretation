@@ -423,6 +423,7 @@ const void *_ARSEGMENTPAGE_CURRNTPAGE_SCROLLVIEWINSET =
     self.segmentTopInset = self.headerHeightConstraint.constant;
   } else if (context == _ARSEGMENTPAGE_CURRNTPAGE_SCROLLVIEWINSET) {
     UIEdgeInsets insets = [object contentInset];
+      NSLog(@"insets == %@",NSStringFromUIEdgeInsets(insets));
     if (fabs(insets.top - _originalTopInset) < 2) {
       self.ignoreOffsetChanged = NO;
     } else {

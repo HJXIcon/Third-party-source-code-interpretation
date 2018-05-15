@@ -75,8 +75,10 @@
     
     TableViewController *table1 = [[TableViewController alloc] initWithNibName:@"TableViewController" bundle:nil];
     
+    ViewController *vc = [[ViewController alloc]init];
+    
     ARSegmentPageController *pager = [[ARSegmentPageController alloc] init];
-    [pager setViewControllers:@[table,collectionView,table1]];
+    [pager setViewControllers:@[table,collectionView,table1,vc]];
     pager.segmentMiniTopInset = 64;
     if (@available(iOS 11.0, *)) {
         pager.segmentMiniTopInset = 84;

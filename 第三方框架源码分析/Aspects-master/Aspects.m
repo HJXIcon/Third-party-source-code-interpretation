@@ -444,7 +444,7 @@ static Class aspect_hookClass(NSObject *self, NSError **error) {
             return nil;
         }
 
-        // 混写 forwardInvocation:
+        // 混写 forwardInvocation: 
 		aspect_swizzleForwardInvocation(subclass);
         // subClass.class = statedClass
         // subClass.isa.class = statedClass
